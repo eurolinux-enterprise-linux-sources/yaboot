@@ -1,7 +1,7 @@
 Summary: Linux bootloader for Power Macintosh "New World" computers.
 Name: yaboot
 Version: 1.3.17
-Release: 12%{?dist}
+Release: 7%{?dist}
 License: GPLv2+
 Group: System Environment/Base
 Source: http://yaboot.ozlabs.org/releases/yaboot-%{version}.tar.gz
@@ -32,8 +32,6 @@ Patch41: yaboot-1.3.17-no-werror.patch
 Patch42: yaboot-1.3.17-fs_swap.patch
 Patch43: yaboot-1.3.17-link_with_new_e2fsprogs.patch
 Patch44: yaboot-1.3.17-link_with_new_e2fsprogs2.patch
-# Set stack canary needed by stack protector
-Patch45: yaboot-1.3.17-canary.patch
 
 URL: http://yaboot.ozlabs.org/
 BuildRoot: %{_tmppath}/%{name}-root
@@ -58,7 +56,6 @@ machines (Rev. A iMac and newer) and runs directly from Open Firmware,
 eliminating the need for Mac OS.
 yaboot can also bootload IBM pSeries machines.
 
-
 %prep
 %setup -q
 %patch1 -p1
@@ -80,36 +77,36 @@ yaboot can also bootload IBM pSeries machines.
 %patch42 -p1
 %patch43 -p1
 %patch44 -p1
-%patch45 -p1
-
 
 %build
-make CFLAGS="-mno-altivec -mno-vsx" VERSIONEXTRA='\ (Red Hat %version-%release)' DEBUG=1
+make VERSIONEXTRA='\ (Red Hat %version-%release)' DEBUG=1
 cp -a second/yaboot{,.debug}
 make clean
-make CFLAGS="-mno-altivec -mno-vsx" VERSIONEXTRA='\ (Red Hat %version-%release)'
-
+make VERSIONEXTRA='\ (Red Hat %version-%release)'
 
 %install
-%makeinstall ROOT=$RPM_BUILD_ROOT PREFIX=%{_prefix} MANDIR=share/man SBINDIR=%{_sbindir}
+%makeinstall ROOT=$RPM_BUILD_ROOT PREFIX=%{_prefix} MANDIR=share/man SBINDIR=/sbin
 rm -f $RPM_BUILD_ROOT/etc/yaboot.conf
 touch $RPM_BUILD_ROOT/etc/yaboot.conf
 mkdir -p $RPM_BUILD_ROOT/boot
 install -m0644 %{SOURCE1} $RPM_BUILD_ROOT/boot/efika.forth
 install -m0644 second/yaboot.debug $RPM_BUILD_ROOT/usr/lib/yaboot/
 
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %files
+%defattr(-,root,root)
 %doc COPYING README* doc/*
 /boot/efika.forth
-%{_sbindir}/ofpath
-%{_sbindir}/ybin
-%{_sbindir}/yabootconfig
-%{_sbindir}/mkofboot
-/usr/lib/yaboot/addnote
-/usr/lib/yaboot/ofboot
-/usr/lib/yaboot/yaboot
-/usr/lib/yaboot/yaboot.debug
+/sbin/ofpath
+/sbin/ybin
+/sbin/yabootconfig
+/sbin/mkofboot
+%{_libdir}/yaboot/addnote
+%{_libdir}/yaboot/ofboot
+%{_libdir}/yaboot/yaboot
+%{_libdir}/yaboot/yaboot.debug
 %{_mandir}/man8/bootstrap.8.gz
 %{_mandir}/man8/mkofboot.8.gz
 %{_mandir}/man8/ofpath.8.gz
@@ -120,25 +117,8 @@ install -m0644 second/yaboot.debug $RPM_BUILD_ROOT/usr/lib/yaboot/
 %ghost %config(noreplace) %{_sysconfdir}/yaboot.conf
 
 %changelog
-* Wed Mar 12 2014 Karsten Hopp <karsten@redhat.com> 1.3.17-12
-- move executables to /usr/sbin
-
-* Fri Mar 07 2014 Dan Horák <dhorak@redhat.com> - 1.3.17-11
-- disable usage of Altivec or VSX instructions
-- provide infrastructure for the stack proctector used by libext2fs
-- Resolves: #1050896
-
-* Fri Jan 10 2014 Filip Kocina <fkocina@redhat.com> - 1.3.17-10
-- Resolves: #1050896 - deletes -Os
-
-* Fri Jan 10 2014 Filip Kocina <fkocina@redhat.com> - 1.3.17-9
-- Resolves: #1050896 - boot on ppc64 failed using yaboot
-
-* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.3.17-8
-- Mass rebuild 2013-12-27
-
-* Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.3.17-7
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+* Mon Nov 26 2012 Filip Kocina <fkocina@redhat.com> - 1.3.17-7
+- Changes absolute paths into paths starting with macros
 
 * Wed Sep 05 2012 Tony Breeds <tony@bakeyournoodle.com> - 1.3.17-6
 - Add patch to link against *even newer* e2fsprogs.
