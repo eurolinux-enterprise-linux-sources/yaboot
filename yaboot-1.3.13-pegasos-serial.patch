@@ -1,0 +1,14 @@
+--- yaboot-1.3.17/second/prom.c.orig	2011-10-18 12:48:11.388505271 +1100
++++ yaboot-1.3.17/second/prom.c	2011-10-18 12:49:36.553326950 +1100
+@@ -395,10 +395,8 @@
+      char c;
+      int a;
+ 
+-     while ((a = (int)call_prom ("read", 3, 1, prom_stdin, &c, 1)) == 0)
++     while ((a = (int)call_prom ("read", 3, 1, prom_stdin, &c, 1)) <= 0)
+ 	  ;
+-     if (a == -1)
+-	  prom_abort ("EOF on console\n");
+      return c;
+ }
+ 

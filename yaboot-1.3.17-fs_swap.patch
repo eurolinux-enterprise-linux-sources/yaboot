@@ -1,0 +1,41 @@
+From f6058147054159eba994eb9589e2ebabe4a05570 Mon Sep 17 00:00:00 2001
+From: Tony Breeds <tony@bakeyournoodle.com>
+Date: Wed, 19 Oct 2011 13:36:49 +1100
+Subject: [PATCH] fs_swap: Reduce severity of not finding a partition table on
+ boot device.
+
+When booted from a cdrom the fs_swap would exit with FILE_ERR_BADDEV,
+this causes fs_open to abort too early.
+
+We don't need to check file->device_kind != FILE_DEVICE_BLOCK as we're
+only called when that is true.
+
+Demote the return value to FILE_ERR_BAD_FSYS which allows fs_open to
+look for other filesystems on the device.
+
+Signed-off-by: Tony Breeds <tony@bakeyournoodle.com>
+---
+ second/fs_swap.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/second/fs_swap.c b/second/fs_swap.c
+index 87da877..1efb96e 100644
+--- a/second/fs_swap.c
++++ b/second/fs_swap.c
+@@ -59,9 +59,10 @@ swap_open(struct boot_file_t* file, struct partition_t* part,
+      DEBUG_ENTER;
+      DEBUG_OPEN;
+ 
+-     if (file->device_kind != FILE_DEVICE_BLOCK || part == NULL) {
+-	  DEBUG_LEAVE(FILE_ERR_BADDEV);
+-	  return FILE_ERR_BADDEV;
++     if (part == NULL) {
++          DEBUG_F("No partions on %s, not checking for swap\n", device_name);
++	  DEBUG_LEAVE(FILE_ERR_BAD_FSYS);
++	  return FILE_ERR_BAD_FSYS;
+      }
+ 
+      /* We assume that device is "short" and is correctly NULL terminsated */
+-- 
+1.7.6.4
+

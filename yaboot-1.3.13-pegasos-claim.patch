@@ -1,0 +1,14 @@
+--- yaboot-1.3.17/second/prom.c.orig	2011-10-18 12:41:46.924310275 +1100
++++ yaboot-1.3.17/second/prom.c	2011-10-18 12:43:17.202121228 +1100
+@@ -622,6 +622,11 @@
+      void *ret;
+ 
+      ret = call_prom ("claim", 3, 1, virt, size, align);
++
++     /* Pegasos II SmartFirmware returns zero for failure, usefully */
++     if (virt && !ret)
++          ret = (void *)-1;
++
+      if (ret == (void *)-1)
+           prom_printf("ERROR: claim of 0x%x at 0x%x failed\n", size, (int)virt);
+      else

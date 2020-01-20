@@ -1,0 +1,10 @@
+--- yaboot-1.3.17/Makefile.orig	2011-10-18 17:08:21.488819995 +1100
++++ yaboot-1.3.17/Makefile	2011-10-18 17:08:30.038802076 +1100
+@@ -40,7 +40,6 @@
+ YBCFLAGS += -DTEXTADDR=$(TEXTADDR) -DDEBUG=$(DEBUG)
+ YBCFLAGS += -DMALLOCADDR=$(MALLOCADDR) -DMALLOCSIZE=$(MALLOCSIZE)
+ YBCFLAGS += -DKERNELADDR=$(KERNELADDR)
+-YBCFLAGS += -Werror -fdiagnostics-show-option
+ YBCFLAGS += -I ./include
+ YBCFLAGS += -fno-strict-aliasing
+ 
